@@ -1,0 +1,380 @@
+openapi: 3.0.3
+info:
+  title: API Agendamento de Coletas
+  version: 1.0.0
+  description: |
+    API REST para cadastro de motoristas e agendamento de coletas entre fornecedores e clientes.
+
+    Regras de negócio garantidas pelo backend:
+    1. A data do agendamento deve ser maior que a data atual.
+    2. Cada fornecedor pode ter apenas uma coleta por data.
+    3. O mesmo cliente pode se repetir.
+    4. Motorista é obrigatório.
+    5. Placa do veículo é obrigatória.
+    6. Um motorista não pode possuir duas placas vinculadas.
+    7. CNPJ do fornecedor com validação de máscara e dígitos verificadores.
+    8. CNPJ do cliente com validação de máscara e dígitos verificadores.
+servers:
+  - url: http://localhost:8000/api
+tags:
+  - name: Motoristas
+  - name: Coletas
+  - name: Resumo
+
+paths:
+  /motoristas:
+    get:
+      tags: [Motoristas]
+      summary: Lista motoristas (paginado)
+      parameters:
+        - $ref: '#/components/parameters/Pagina'
+        - $ref: '#/components/parameters/PorPagina'
+        - name: busca
+          in: query
+          description: Filtra pelo nome do motorista
+          schema: { type: string, maxLength: 255 }
+        - name: ordenar_por
+          in: query
+          schema: { type: string, enum: [nome, total_coletas], default: nome }
+        - $ref: '#/components/parameters/Direcao'
+      responses:
+        '200':
+          description: Lista paginada
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Paginacao'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/Motorista' }
+        '422': { $ref: '#/components/responses/ErroValidacao' }
+    post:
+      tags: [Motoristas]
+      summary: Cadastra motorista
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MotoristaEntrada' }
+      responses:
+        '201':
+          description: Motorista criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Motorista' }
+        '422': { $ref: '#/components/responses/ErroValidacao' }
+
+  /motoristas/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Motoristas]
+      summary: Detalha motorista
+      responses:
+        '200':
+          description: Motorista
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Motorista' }
+        '404': { $ref: '#/components/responses/NaoEncontrado' }
+    put:
+      tags: [Motoristas]
+      summary: Atualiza motorista
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MotoristaEntrada' }
+      responses:
+        '200':
+          description: Motorista atualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Motorista' }
+        '404': { $ref: '#/components/responses/NaoEncontrado' }
+        '422': { $ref: '#/components/responses/ErroValidacao' }
+    delete:
+      tags: [Motoristas]
+      summary: Exclui motorista
+      description: Motorista com coletas agendadas não pode ser excluído.
+      responses:
+        '204': { description: Excluído }
+        '404': { $ref: '#/components/responses/NaoEncontrado' }
+        '409': { $ref: '#/components/responses/ConflitoRegra' }
+
+  /coletas:
+    get:
+      tags: [Coletas]
+      summary: Lista coletas (paginado, com filtros e ordenação)
+      parameters:
+        - $ref: '#/components/parameters/Pagina'
+        - $ref: '#/components/parameters/PorPagina'
+        - $ref: '#/components/parameters/BuscaColeta'
+        - $ref: '#/components/parameters/MotoristaId'
+        - $ref: '#/components/parameters/DataInicio'
+        - $ref: '#/components/parameters/DataFim'
+        - $ref: '#/components/parameters/OrdenarColeta'
+        - $ref: '#/components/parameters/Direcao'
+      responses:
+        '200':
+          description: Lista paginada
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Paginacao'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/Coleta' }
+        '422': { $ref: '#/components/responses/ErroValidacao' }
+    post:
+      tags: [Coletas]
+      summary: Agenda coleta
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ColetaEntrada' }
+      responses:
+        '201':
+          description: Coleta agendada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Coleta' }
+        '409': { $ref: '#/components/responses/ConflitoRegra' }
+        '422': { $ref: '#/components/responses/ErroValidacao' }
+
+  /coletas/exportar:
+    get:
+      tags: [Coletas]
+      summary: Exporta coletas em CSV
+      description: Aceita os mesmos filtros e ordenação da listagem. Separador `;` e BOM UTF-8 para abrir no Excel.
+      parameters:
+        - $ref: '#/components/parameters/BuscaColeta'
+        - $ref: '#/components/parameters/MotoristaId'
+        - $ref: '#/components/parameters/DataInicio'
+        - $ref: '#/components/parameters/DataFim'
+        - $ref: '#/components/parameters/OrdenarColeta'
+        - $ref: '#/components/parameters/Direcao'
+      responses:
+        '200':
+          description: Arquivo `coletas.csv`
+          content:
+            text/csv:
+              schema: { type: string }
+        '422': { $ref: '#/components/responses/ErroValidacao' }
+
+  /coletas/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Coletas]
+      summary: Detalha coleta
+      responses:
+        '200':
+          description: Coleta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Coleta' }
+        '404': { $ref: '#/components/responses/NaoEncontrado' }
+    put:
+      tags: [Coletas]
+      summary: Atualiza coleta
+      description: As regras 2 e 6 ignoram o próprio registro na edição.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ColetaEntrada' }
+      responses:
+        '200':
+          description: Coleta atualizada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Coleta' }
+        '404': { $ref: '#/components/responses/NaoEncontrado' }
+        '409': { $ref: '#/components/responses/ConflitoRegra' }
+        '422': { $ref: '#/components/responses/ErroValidacao' }
+    delete:
+      tags: [Coletas]
+      summary: Exclui coleta
+      responses:
+        '204': { description: Excluída }
+        '404': { $ref: '#/components/responses/NaoEncontrado' }
+
+  /resumo:
+    get:
+      tags: [Resumo]
+      summary: Indicadores para a visão geral
+      responses:
+        '200':
+          description: Indicadores e próximas coletas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Resumo' }
+
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+    Pagina:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PorPagina:
+      name: por_pagina
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 15 }
+    Direcao:
+      name: direcao
+      in: query
+      schema: { type: string, enum: [asc, desc], default: asc }
+    BuscaColeta:
+      name: busca
+      in: query
+      description: Busca por nome do fornecedor, nome do cliente ou CNPJ (com ou sem máscara)
+      schema: { type: string, maxLength: 255 }
+    MotoristaId:
+      name: motorista_id
+      in: query
+      schema: { type: integer }
+    DataInicio:
+      name: data_inicio
+      in: query
+      schema: { type: string, format: date, example: '2026-09-01' }
+    DataFim:
+      name: data_fim
+      in: query
+      description: Deve ser igual ou posterior a `data_inicio`
+      schema: { type: string, format: date, example: '2026-09-30' }
+    OrdenarColeta:
+      name: ordenar_por
+      in: query
+      schema:
+        type: string
+        enum: [data, fornecedor_nome, cliente_nome, placa_veiculo, motorista]
+        default: data
+
+  schemas:
+    Motorista:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        nome: { type: string, example: Carlos Eduardo Silva }
+        total_coletas: { type: integer, example: 2 }
+    MotoristaEntrada:
+      type: object
+      required: [nome]
+      properties:
+        nome: { type: string, maxLength: 255, example: Carlos Eduardo Silva }
+    Coleta:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        data: { type: string, format: date, example: '2026-09-10' }
+        fornecedor_nome: { type: string, example: Fornecedor Ltda }
+        fornecedor_cnpj: { type: string, example: 11.222.333/0001-81 }
+        cliente_nome: { type: string, example: Cliente S.A. }
+        cliente_cnpj: { type: string, example: 12.345.678/0001-95 }
+        motorista_id: { type: integer, example: 1 }
+        motorista: { $ref: '#/components/schemas/Motorista' }
+        placa_veiculo: { type: string, example: ABC-1234 }
+    ColetaEntrada:
+      type: object
+      required:
+        - data
+        - fornecedor_nome
+        - fornecedor_cnpj
+        - cliente_nome
+        - cliente_cnpj
+        - motorista_id
+        - placa_veiculo
+      properties:
+        data:
+          type: string
+          format: date
+          description: Deve ser posterior à data atual
+          example: '2026-09-10'
+        fornecedor_nome: { type: string, maxLength: 255, example: Fornecedor Ltda }
+        fornecedor_cnpj:
+          type: string
+          description: Formato 00.000.000/0000-00 com dígitos verificadores válidos
+          example: 11.222.333/0001-81
+        cliente_nome: { type: string, maxLength: 255, example: Cliente S.A. }
+        cliente_cnpj: { type: string, example: 12.345.678/0001-95 }
+        motorista_id: { type: integer, example: 1 }
+        placa_veiculo:
+          type: string
+          description: Formato antigo (ABC-1234) ou Mercosul (ABC1D23)
+          example: ABC-1234
+    Resumo:
+      type: object
+      properties:
+        dias_proximos: { type: integer, example: 7 }
+        coletas_hoje: { type: integer, example: 1 }
+        coletas_proximos_dias: { type: integer, example: 6 }
+        coletas_futuras: { type: integer, example: 10 }
+        total_motoristas: { type: integer, example: 5 }
+        motoristas_com_coletas: { type: integer, example: 5 }
+        proximas_coletas:
+          type: array
+          items: { $ref: '#/components/schemas/Coleta' }
+    Paginacao:
+      type: object
+      properties:
+        links:
+          type: object
+          properties:
+            first: { type: string, nullable: true }
+            last: { type: string, nullable: true }
+            prev: { type: string, nullable: true }
+            next: { type: string, nullable: true }
+        meta:
+          type: object
+          properties:
+            current_page: { type: integer, example: 1 }
+            per_page: { type: integer, example: 15 }
+            total: { type: integer, example: 10 }
+            last_page: { type: integer, example: 1 }
+    Erro:
+      type: object
+      properties:
+        message: { type: string }
+    ErroValidacao:
+      type: object
+      properties:
+        message: { type: string, example: O campo nome é obrigatório. }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+          example:
+            nome: [O campo nome é obrigatório.]
+
+  responses:
+    NaoEncontrado:
+      description: Registro não encontrado
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+          example: { message: Registro não encontrado. }
+    ConflitoRegra:
+      description: Regra de negócio violada
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+          example: { message: O fornecedor já possui uma coleta agendada para esta data. }
+    ErroValidacao:
+      description: Erro de validação
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErroValidacao' }

@@ -1,0 +1,215 @@
+{
+  "info": {
+    "name": "Agendamento de Coletas",
+    "description": "Coleção para testar a API de agendamento de coletas. Defina a variável base_url (padrão http://localhost:8000/api).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api" },
+    { "key": "motorista_id", "value": "1" },
+    { "key": "coleta_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Resumo",
+      "item": [
+        {
+          "name": "Indicadores da visão geral",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/resumo", "host": ["{{base_url}}"], "path": ["resumo"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Motoristas",
+      "item": [
+        {
+          "name": "Listar motoristas",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/motoristas?page=1&por_pagina=15&busca=&ordenar_por=nome&direcao=asc",
+              "host": ["{{base_url}}"],
+              "path": ["motoristas"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "por_pagina", "value": "15" },
+                { "key": "busca", "value": "" },
+                { "key": "ordenar_por", "value": "nome" },
+                { "key": "direcao", "value": "asc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar motorista",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Carlos Eduardo Silva\"\n}" },
+            "url": { "raw": "{{base_url}}/motoristas", "host": ["{{base_url}}"], "path": ["motoristas"] }
+          }
+        },
+        {
+          "name": "Detalhar motorista",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/motoristas/{{motorista_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["motoristas", "{{motorista_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar motorista",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Carlos Eduardo da Silva\"\n}" },
+            "url": {
+              "raw": "{{base_url}}/motoristas/{{motorista_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["motoristas", "{{motorista_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Excluir motorista",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/motoristas/{{motorista_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["motoristas", "{{motorista_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Coletas",
+      "item": [
+        {
+          "name": "Listar coletas",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/coletas?page=1&por_pagina=15&busca=&motorista_id=&data_inicio=&data_fim=&ordenar_por=data&direcao=asc",
+              "host": ["{{base_url}}"],
+              "path": ["coletas"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "por_pagina", "value": "15" },
+                { "key": "busca", "value": "" },
+                { "key": "motorista_id", "value": "" },
+                { "key": "data_inicio", "value": "" },
+                { "key": "data_fim", "value": "" },
+                { "key": "ordenar_por", "value": "data" },
+                { "key": "direcao", "value": "asc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Exportar coletas (CSV)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "text/csv" }],
+            "url": {
+              "raw": "{{base_url}}/coletas/exportar",
+              "host": ["{{base_url}}"],
+              "path": ["coletas", "exportar"]
+            }
+          }
+        },
+        {
+          "name": "Agendar coleta",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": \"2026-12-15\",\n  \"fornecedor_nome\": \"Fornecedor Ltda\",\n  \"fornecedor_cnpj\": \"11.222.333/0001-81\",\n  \"cliente_nome\": \"Cliente S.A.\",\n  \"cliente_cnpj\": \"12.345.678/0001-95\",\n  \"motorista_id\": {{motorista_id}},\n  \"placa_veiculo\": \"ABC-1234\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/coletas", "host": ["{{base_url}}"], "path": ["coletas"] }
+          }
+        },
+        {
+          "name": "Agendar coleta (erro 422 - CNPJ e data inválidos)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": \"2020-01-01\",\n  \"fornecedor_nome\": \"Fornecedor Ltda\",\n  \"fornecedor_cnpj\": \"11222333000181\",\n  \"cliente_nome\": \"Cliente S.A.\",\n  \"cliente_cnpj\": \"12.345.678/0001-96\",\n  \"motorista_id\": {{motorista_id}},\n  \"placa_veiculo\": \"AB12\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/coletas", "host": ["{{base_url}}"], "path": ["coletas"] }
+          }
+        },
+        {
+          "name": "Detalhar coleta",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/coletas/{{coleta_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["coletas", "{{coleta_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar coleta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": \"2026-12-16\",\n  \"fornecedor_nome\": \"Fornecedor Ltda\",\n  \"fornecedor_cnpj\": \"11.222.333/0001-81\",\n  \"cliente_nome\": \"Cliente S.A.\",\n  \"cliente_cnpj\": \"12.345.678/0001-95\",\n  \"motorista_id\": {{motorista_id}},\n  \"placa_veiculo\": \"ABC-1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/coletas/{{coleta_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["coletas", "{{coleta_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Excluir coleta",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/coletas/{{coleta_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["coletas", "{{coleta_id}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
