@@ -8,7 +8,7 @@
         color="white"
         text-color="primary"
         unelevated
-        :to="{ name: 'coletas' }"
+        :to="{ name: 'inicio' }"
         label="Voltar ao início"
         no-caps
       />

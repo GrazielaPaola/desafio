@@ -36,7 +36,9 @@
 import { ref } from 'vue'
 
 const itensMenu = [
+  { titulo: 'Visão geral', icone: 'dashboard', rota: 'inicio' },
   { titulo: 'Coletas', icone: 'local_shipping', rota: 'coletas' },
+  { titulo: 'Agenda', icone: 'calendar_month', rota: 'agenda' },
   { titulo: 'Motoristas', icone: 'badge', rota: 'motoristas' },
 ]
 
