@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ListarMotoristasRequest;
 use App\Http\Requests\MotoristaRequest;
-use App\Http\Requests\PaginacaoRequest;
 use App\Http\Resources\MotoristaResource;
 use App\Models\Motorista;
 use App\Services\MotoristaService;
@@ -15,9 +15,11 @@ class MotoristaController extends Controller
 {
     public function __construct(private readonly MotoristaService $service) {}
 
-    public function index(PaginacaoRequest $request): AnonymousResourceCollection
+    public function index(ListarMotoristasRequest $request): AnonymousResourceCollection
     {
-        return MotoristaResource::collection($this->service->listar($request->porPagina()));
+        return MotoristaResource::collection(
+            $this->service->listar($request->filtros(), $request->porPagina()),
+        );
     }
 
     public function store(MotoristaRequest $request): JsonResponse

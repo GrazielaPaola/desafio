@@ -10,6 +10,8 @@ class PaginacaoRequest extends FormRequest
 
     public const POR_PAGINA_MAXIMO = 100;
 
+    public const DIRECOES = ['asc', 'desc'];
+
     public function authorize(): bool
     {
         return true;
@@ -25,5 +27,10 @@ class PaginacaoRequest extends FormRequest
     public function porPagina(): int
     {
         return $this->integer('por_pagina', self::POR_PAGINA_PADRAO);
+    }
+
+    public function filtros(): array
+    {
+        return $this->safe()->except(['por_pagina']);
     }
 }
