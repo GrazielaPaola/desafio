@@ -1,8 +1,19 @@
 # Agendamento de Coletas
 
+![CI](https://github.com/USUARIO/REPOSITORIO/actions/workflows/ci.yml/badge.svg)
+
 Sistema para cadastro de motoristas e agendamento de coletas entre fornecedores e clientes, com validação das regras de negócio no backend e feedback imediato na interface.
 
 Desenvolvido como teste técnico para a vaga de Desenvolvedor(a) Full Stack Júnior.
+
+## Funcionalidades
+
+- **Visão geral**: indicadores (coletas hoje, próximos 7 dias, coletas futuras, motoristas ativos) e próximas coletas.
+- **Coletas**: CRUD completo com busca por fornecedor/cliente/CNPJ, filtro por motorista e período, ordenação por coluna, paginação e exportação para CSV.
+- **Agenda**: visão semanal das coletas, com cor por motorista e navegação entre semanas.
+- **Motoristas**: CRUD com busca, ordenação e bloqueio de exclusão quando há coletas vinculadas.
+- Layout responsivo: as tabelas viram cards no celular.
+- Documentação da API navegável (Swagger UI) e coleção do Postman.
 
 ## Tecnologias
 
@@ -13,8 +24,9 @@ Desenvolvido como teste técnico para a vaga de Desenvolvedor(a) Full Stack Jún
 | Banco de dados | MySQL | 8.4 |
 | Estado (front) | Pinia | 4 |
 | HTTP (front) | Axios | 1 |
-| Testes | PHPUnit | 12 |
+| Testes | PHPUnit · Vitest | 12 · 4 |
 | Padrão de código | Laravel Pint · ESLint · Prettier | — |
+| CI | GitHub Actions | — |
 
 ## Pré-requisitos
 
@@ -59,40 +71,46 @@ npm run dev
 
 A aplicação abre em `http://localhost:9000`. A variável `QCLI_API_URL` no `.env` aponta para a API (padrão `http://localhost:8000/api`).
 
+## Documentação da API
+
+- **Swagger UI**: com o backend rodando, acesse `http://localhost:8000/docs/index.html`. A especificação fica em [backend/public/docs/openapi.yaml](backend/public/docs/openapi.yaml).
+- **Postman**: importe [docs/agendamento-coletas.postman_collection.json](docs/agendamento-coletas.postman_collection.json). A variável `base_url` já aponta para `http://localhost:8000/api`.
+
 ## Estrutura de pastas
 
 ```
 olflog/
+├── .github/workflows/ci.yml     Pipeline: Pint, PHPUnit, ESLint/Prettier, Vitest e build
+├── docs/                        Coleção do Postman
 ├── backend/                     API REST (Laravel)
 │   ├── app/
 │   │   ├── Exceptions/          Exceções de domínio (409)
 │   │   ├── Http/
 │   │   │   ├── Controllers/     Orquestração: recebem a requisição e chamam o service
-│   │   │   ├── Requests/        Validação de entrada (FormRequest)
+│   │   │   ├── Requests/        Validação de entrada, filtros e ordenação (FormRequest)
 │   │   │   └── Resources/       Formato do JSON de saída
-│   │   ├── Models/              Eloquent: relacionamentos, casts e mutators
+│   │   ├── Models/              Eloquent: relacionamentos, casts, mutators e scopes
 │   │   ├── Rules/               Regras de validação reutilizáveis (CNPJ, placa)
-│   │   ├── Services/            Regras de negócio
-│   │   └── Support/             Normalização e formatação de CNPJ e placa
-│   ├── database/
-│   │   ├── factories/
-│   │   ├── migrations/
-│   │   └── seeders/
+│   │   ├── Services/            Regras de negócio, listagens filtradas, resumo
+│   │   └── Support/             Normalização de CNPJ e placa, geração de CSV
+│   ├── database/                Migrations, factories e seeders
 │   ├── lang/pt_BR/              Mensagens de validação em português
+│   ├── public/docs/             Swagger UI + openapi.yaml
 │   ├── routes/api.php
 │   └── tests/
-│       ├── Feature/             Testes das regras de negócio via HTTP
-│       └── Unit/                Testes das rules de CNPJ e placa
+│       ├── Feature/             Regras de negócio, filtros, exportação e resumo via HTTP
+│       └── Unit/                Rules de CNPJ e placa
 └── frontend/                    SPA (Vue 3 + Quasar)
-    └── src/
-        ├── components/          Componentes de apresentação (tabelas e formulários)
-        ├── composables/         Lógica reativa reutilizável (listagem, erros, confirmação)
-        ├── layouts/
-        ├── pages/               Telas de Coletas e Motoristas
-        ├── router/
-        ├── services/            Única camada que conhece o axios e os endpoints
-        ├── stores/              Pinia
-        └── utils/               Validação e formatação de CNPJ, placa e datas
+    ├── src/
+    │   ├── components/          Componentes de apresentação (tabelas, formulários, filtros)
+    │   ├── composables/         Listagem paginada, agenda, erros da API, confirmação
+    │   ├── layouts/
+    │   ├── pages/               Visão geral, Coletas, Agenda, Motoristas
+    │   ├── router/
+    │   ├── services/            Única camada que conhece o axios e os endpoints
+    │   ├── stores/              Pinia
+    │   └── utils/               Validação e formatação de CNPJ, placa e datas
+    └── test/unit/               Testes das funções puras (Vitest)
 ```
 
 Fluxo de uma requisição no backend:
@@ -124,17 +142,19 @@ Decisões complementares:
 
 ## Endpoints da API
 
-Base: `http://localhost:8000/api`. Todas as respostas são JSON.
+Base: `http://localhost:8000/api`. Todas as respostas são JSON (exceto a exportação CSV).
 
 ### Motoristas
 
 | Método | Rota | Descrição |
 |---|---|---|
-| GET | `/motoristas?page=1&por_pagina=15` | Lista paginada, ordenada por nome |
+| GET | `/motoristas` | Lista paginada |
 | POST | `/motoristas` | Cria motorista |
 | GET | `/motoristas/{id}` | Detalha motorista |
 | PUT | `/motoristas/{id}` | Atualiza motorista |
 | DELETE | `/motoristas/{id}` | Exclui motorista (409 se possuir coletas) |
+
+Parâmetros de listagem: `page`, `por_pagina` (1–100), `busca` (nome), `ordenar_por` (`nome`, `total_coletas`), `direcao` (`asc`, `desc`).
 
 Payload de criação/atualização:
 
@@ -152,11 +172,14 @@ Resposta (201/200):
 
 | Método | Rota | Descrição |
 |---|---|---|
-| GET | `/coletas?page=1&por_pagina=15` | Lista paginada, ordenada por data, com motorista |
+| GET | `/coletas` | Lista paginada, com motorista |
+| GET | `/coletas/exportar` | Exporta CSV (`;`, UTF-8 com BOM) respeitando os mesmos filtros |
 | POST | `/coletas` | Agenda coleta |
 | GET | `/coletas/{id}` | Detalha coleta |
 | PUT | `/coletas/{id}` | Atualiza coleta |
 | DELETE | `/coletas/{id}` | Exclui coleta |
+
+Parâmetros de listagem e exportação: `page`, `por_pagina` (1–100), `busca` (fornecedor, cliente ou CNPJ com/sem máscara), `motorista_id`, `data_inicio`, `data_fim` (`YYYY-MM-DD`), `ordenar_por` (`data`, `fornecedor_nome`, `cliente_nome`, `placa_veiculo`, `motorista`), `direcao` (`asc`, `desc`).
 
 Payload de criação/atualização:
 
@@ -188,6 +211,24 @@ Resposta (201/200):
 }
 ```
 
+### Resumo
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/resumo` | Indicadores da visão geral e as 5 próximas coletas |
+
+```json
+{
+  "dias_proximos": 7,
+  "coletas_hoje": 1,
+  "coletas_proximos_dias": 6,
+  "coletas_futuras": 10,
+  "total_motoristas": 5,
+  "motoristas_com_coletas": 5,
+  "proximas_coletas": []
+}
+```
+
 ### Listagens paginadas
 
 ```json
@@ -210,12 +251,23 @@ Todas as mensagens são em português.
 
 ## Testes
 
+Backend (PHPUnit, SQLite em memória — não depende do MySQL):
+
 ```bash
 cd backend
 php artisan test
 ```
 
-Os testes usam SQLite em memória e não dependem do MySQL. Cobrem o CRUD de motoristas e coletas, cada uma das oito regras de negócio, os códigos de erro (422, 404, 409) e as rules de CNPJ e placa.
+Cobre o CRUD de motoristas e coletas, cada uma das oito regras de negócio, filtros, ordenação, exportação CSV, resumo, os códigos de erro (422, 404, 409) e as rules de CNPJ e placa.
+
+Frontend (Vitest):
+
+```bash
+cd frontend
+npm test
+```
+
+Cobre as funções puras de validação e formatação de CNPJ, placa e datas.
 
 Padrão de código:
 
@@ -223,6 +275,10 @@ Padrão de código:
 cd backend && ./vendor/bin/pint --test
 cd frontend && npm run lint:check
 ```
+
+## Integração contínua
+
+O workflow em `.github/workflows/ci.yml` roda a cada push: Pint e PHPUnit no backend; ESLint/Prettier, Vitest e build no frontend.
 
 ## Planejamento
 
