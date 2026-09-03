@@ -9,4 +9,8 @@ export const coletaService = {
   criar: (dados) => api.post(RECURSO, dados).then((resposta) => resposta.data),
   atualizar: (id, dados) => api.put(`${RECURSO}/${id}`, dados).then((resposta) => resposta.data),
   excluir: (id) => api.delete(`${RECURSO}/${id}`),
+  exportar: (parametros) =>
+    api
+      .get(`${RECURSO}/exportar`, { params: parametros, responseType: 'blob' })
+      .then((resposta) => resposta.data),
 }

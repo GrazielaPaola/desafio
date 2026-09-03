@@ -1,9 +1,26 @@
 <template>
   <q-page padding>
-    <div class="row items-center justify-between q-mb-md">
+    <div class="row items-center justify-between q-mb-md q-gutter-y-sm">
       <div class="text-h5">Coletas</div>
-      <q-btn color="primary" icon="add" label="Nova coleta" @click="nova" />
+      <div class="q-gutter-sm">
+        <q-btn
+          outline
+          color="primary"
+          icon="download"
+          label="Exportar CSV"
+          :loading="exportando"
+          @click="exportarCsv"
+        />
+        <q-btn color="primary" icon="add" label="Nova coleta" @click="nova" />
+      </div>
     </div>
+
+    <FiltrosColetas
+      class="q-mb-md"
+      :model-value="filtros"
+      :motoristas="opcoesMotoristas"
+      @update:model-value="filtrar"
+    />
 
     <ColetasTable
       :coletas="coletas"
@@ -29,8 +46,10 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import { exportFile } from 'quasar'
 import ColetasTable from '@/components/ColetasTable.vue'
 import ColetaForm from '@/components/ColetaForm.vue'
+import FiltrosColetas from '@/components/FiltrosColetas.vue'
 import { useColetas } from '@/composables/useColetas'
 import { useMotoristasStore } from '@/stores/motoristas'
 import { useErrosApi } from '@/composables/useErrosApi'
@@ -38,23 +57,30 @@ import { useNotificacao } from '@/composables/useNotificacao'
 import { useConfirmacao } from '@/composables/useConfirmacao'
 import { apiParaTela } from '@/utils/data'
 
+const NOME_ARQUIVO_CSV = 'coletas.csv'
+const TIPO_CSV = 'text/csv'
+
 const {
   coletas,
   carregando,
   paginacao,
+  filtros,
   carregar,
+  aplicarFiltros,
   salvar: salvarColeta,
   excluir: excluirColeta,
+  exportar,
 } = useColetas()
 const motoristasStore = useMotoristasStore()
 const { opcoes: opcoesMotoristas } = storeToRefs(motoristasStore)
 const { errosCampo, mensagemGeral, limpar, tratar } = useErrosApi()
-const { sucesso } = useNotificacao()
+const { sucesso, erro: notificarErro } = useNotificacao()
 const { confirmarExclusao } = useConfirmacao()
 
 const formularioAberto = ref(false)
 const coletaSelecionada = ref(null)
 const salvando = ref(false)
+const exportando = ref(false)
 
 onMounted(() => {
   carregarPagina()
@@ -63,6 +89,10 @@ onMounted(() => {
 
 function carregarPagina(pagina) {
   carregar(pagina).catch(tratar)
+}
+
+function filtrar(novosFiltros) {
+  aplicarFiltros(novosFiltros).catch(tratar)
 }
 
 function nova() {
@@ -105,6 +135,20 @@ async function excluir(coleta) {
     sucesso('Coleta excluída')
   } catch (erro) {
     tratar(erro)
+  }
+}
+
+async function exportarCsv() {
+  exportando.value = true
+
+  try {
+    const arquivo = await exportar()
+    const salvo = exportFile(NOME_ARQUIVO_CSV, arquivo, { mimeType: TIPO_CSV })
+    if (salvo !== true) notificarErro('O navegador bloqueou o download do arquivo.')
+  } catch (erro) {
+    tratar(erro)
+  } finally {
+    exportando.value = false
   }
 }
 </script>

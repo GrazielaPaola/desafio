@@ -4,9 +4,10 @@ import { motoristaService } from '@/services/motoristaService'
 import { useListagemPaginada } from '@/composables/useListagemPaginada'
 
 const POR_PAGINA_MAXIMO = 100
+const FILTROS_INICIAIS = { busca: '' }
 
 export const useMotoristasStore = defineStore('motoristas', () => {
-  const listagem = useListagemPaginada(motoristaService)
+  const listagem = useListagemPaginada(motoristaService, FILTROS_INICIAIS)
   const opcoes = ref([])
 
   async function carregarOpcoes() {
@@ -18,8 +19,10 @@ export const useMotoristasStore = defineStore('motoristas', () => {
     motoristas: listagem.itens,
     carregando: listagem.carregando,
     paginacao: listagem.paginacao,
+    filtros: listagem.filtros,
     opcoes,
     carregar: listagem.carregar,
+    aplicarFiltros: listagem.aplicarFiltros,
     salvar: listagem.salvar,
     excluir: listagem.excluir,
     carregarOpcoes,

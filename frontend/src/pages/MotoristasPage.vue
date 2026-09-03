@@ -1,8 +1,18 @@
 <template>
   <q-page padding>
-    <div class="row items-center justify-between q-mb-md">
+    <div class="row items-center justify-between q-mb-md q-gutter-y-sm">
       <div class="text-h5">Motoristas</div>
       <q-btn color="primary" icon="add" label="Novo motorista" @click="novo" />
+    </div>
+
+    <div class="row q-mb-md">
+      <div class="col-12 col-md-4">
+        <CampoBusca
+          :model-value="filtros.busca"
+          label="Buscar por nome"
+          @update:model-value="filtrar"
+        />
+      </div>
     </div>
 
     <MotoristasTable
@@ -28,6 +38,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import CampoBusca from '@/components/CampoBusca.vue'
 import MotoristasTable from '@/components/MotoristasTable.vue'
 import MotoristaForm from '@/components/MotoristaForm.vue'
 import { useMotoristasStore } from '@/stores/motoristas'
@@ -36,7 +47,7 @@ import { useNotificacao } from '@/composables/useNotificacao'
 import { useConfirmacao } from '@/composables/useConfirmacao'
 
 const store = useMotoristasStore()
-const { motoristas, carregando, paginacao } = storeToRefs(store)
+const { motoristas, carregando, paginacao, filtros } = storeToRefs(store)
 const { errosCampo, mensagemGeral, limpar, tratar } = useErrosApi()
 const { sucesso } = useNotificacao()
 const { confirmarExclusao } = useConfirmacao()
@@ -49,6 +60,10 @@ onMounted(() => carregarPagina())
 
 function carregarPagina(pagina) {
   store.carregar(pagina).catch(tratar)
+}
+
+function filtrar(busca) {
+  store.aplicarFiltros({ busca }).catch(tratar)
 }
 
 function novo() {
