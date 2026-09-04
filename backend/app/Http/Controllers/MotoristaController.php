@@ -31,7 +31,7 @@ class MotoristaController extends Controller
 
     public function show(Motorista $motorista): MotoristaResource
     {
-        return MotoristaResource::make($motorista->loadCount('coletas'));
+        return MotoristaResource::make($this->service->detalhar($motorista));
     }
 
     public function update(MotoristaRequest $request, Motorista $motorista): MotoristaResource

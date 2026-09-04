@@ -23,23 +23,28 @@ class MotoristaService
         $coluna = self::COLUNAS_ORDENACAO[$filtros['ordenar_por'] ?? self::ORDENACAO_PADRAO];
 
         return Motorista::query()
-            ->withCount('coletas')
+            ->comResumo()
             ->when($filtros['busca'] ?? null, fn (Builder $consulta, string $busca) => $consulta->busca($busca))
             ->orderBy($coluna, $filtros['direcao'] ?? self::DIRECAO_PADRAO)
             ->orderBy('nome')
             ->paginate($porPagina);
     }
 
+    public function detalhar(Motorista $motorista): Motorista
+    {
+        return Motorista::query()->comResumo()->findOrFail($motorista->getKey());
+    }
+
     public function criar(array $dados): Motorista
     {
-        return Motorista::create($dados)->loadCount('coletas');
+        return $this->detalhar(Motorista::create($dados));
     }
 
     public function atualizar(Motorista $motorista, array $dados): Motorista
     {
         $motorista->update($dados);
 
-        return $motorista->loadCount('coletas');
+        return $this->detalhar($motorista);
     }
 
     public function excluir(Motorista $motorista): void

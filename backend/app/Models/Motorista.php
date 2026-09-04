@@ -22,4 +22,23 @@ class Motorista extends Model
     {
         return $query->where('nome', 'like', "%{$termo}%");
     }
+
+    public function scopeComResumo(Builder $query): Builder
+    {
+        return $query
+            ->select('motoristas.*')
+            ->withCount('coletas')
+            ->addSelect([
+                'placa_veiculo' => Coleta::query()
+                    ->select('placa_veiculo')
+                    ->whereColumn('motorista_id', 'motoristas.id')
+                    ->limit(1),
+                'proxima_coleta' => Coleta::query()
+                    ->select('data')
+                    ->whereColumn('motorista_id', 'motoristas.id')
+                    ->aPartirDe(now()->toDateString())
+                    ->orderBy('data')
+                    ->limit(1),
+            ]);
+    }
 }
