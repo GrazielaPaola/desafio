@@ -1,64 +1,52 @@
 <template>
-  <div class="row q-col-gutter-sm items-center">
-    <div class="col-12 col-md-4">
-      <CampoBusca
-        :model-value="modelValue.busca"
-        label="Fornecedor, cliente ou CNPJ"
-        @update:model-value="atualizar('busca', $event)"
-      />
-    </div>
+  <div class="filtros">
+    <CampoBusca
+      class="filtros__busca"
+      :model-value="modelValue.busca"
+      rotulo="Fornecedor, cliente ou CNPJ"
+      @update:model-value="atualizar('busca', $event)"
+    />
 
-    <div class="col-12 col-sm-4 col-md-3">
-      <q-select
-        :model-value="modelValue.motorista_id"
-        :options="motoristas"
-        option-value="id"
-        option-label="nome"
-        label="Motorista"
-        emit-value
-        map-options
-        dense
-        outlined
-        clearable
-        @update:model-value="atualizar('motorista_id', $event)"
-      />
-    </div>
+    <q-select
+      class="filtros__motorista"
+      :model-value="modelValue.motorista_id"
+      :options="motoristas"
+      option-value="id"
+      option-label="nome"
+      label="Todos os motoristas"
+      emit-value
+      map-options
+      outlined
+      dense
+      clearable
+      @update:model-value="atualizar('motorista_id', $event)"
+    />
 
-    <div class="col-6 col-sm-4 col-md-2">
-      <q-input
-        :model-value="modelValue.data_inicio"
+    <div class="controle filtros__periodo">
+      <span class="controle__rotulo">De</span>
+      <input
+        class="controle__data"
         type="date"
-        label="De"
-        stack-label
-        dense
-        outlined
-        @update:model-value="atualizar('data_inicio', $event)"
+        :value="modelValue.data_inicio"
+        @change="atualizar('data_inicio', $event.target.value)"
       />
-    </div>
-
-    <div class="col-6 col-sm-4 col-md-2">
-      <q-input
-        :model-value="modelValue.data_fim"
+      <span class="controle__separador" />
+      <span class="controle__rotulo">Até</span>
+      <input
+        class="controle__data"
         type="date"
-        label="Até"
-        stack-label
-        dense
-        outlined
-        @update:model-value="atualizar('data_fim', $event)"
+        :value="modelValue.data_fim"
+        @change="atualizar('data_fim', $event.target.value)"
       />
     </div>
 
-    <div class="col-12 col-md-1">
-      <q-btn
-        v-if="possuiFiltros"
-        flat
-        dense
-        color="grey-8"
-        icon="filter_alt_off"
-        label="Limpar"
-        @click="emit('update:modelValue', { ...FILTROS_INICIAIS_COLETAS })"
-      />
-    </div>
+    <q-btn
+      v-if="possuiFiltros"
+      flat
+      class="botao-link filtros__limpar"
+      label="Limpar"
+      @click="emit('update:modelValue', { ...FILTROS_INICIAIS_COLETAS })"
+    />
   </div>
 </template>
 
@@ -84,3 +72,41 @@ function atualizar(campo, valor) {
   emit('update:modelValue', { ...props.modelValue, [campo]: valor ?? '' })
 }
 </script>
+
+<style scoped>
+.filtros {
+  display: contents;
+}
+
+.filtros__busca {
+  flex: 1 1 280px;
+  min-width: 220px;
+}
+
+.filtros__motorista {
+  flex: 0 0 200px;
+}
+
+.filtros__motorista :deep(.q-field__control) {
+  height: 46px;
+  border-radius: var(--raio-controle);
+  background: var(--superficie);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--tinta-suave);
+}
+
+.filtros__motorista :deep(.q-field__control:before) {
+  border-color: var(--borda-forte);
+}
+
+.filtros__periodo {
+  flex: 0 0 auto;
+  gap: 8px;
+  padding: 0 14px;
+}
+
+.filtros__limpar {
+  flex: 0 0 auto;
+}
+</style>
