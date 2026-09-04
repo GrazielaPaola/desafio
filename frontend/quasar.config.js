@@ -3,7 +3,9 @@ import { defineConfig } from '#q-app'
 export default defineConfig(() => ({
   boot: [],
 
-  extras: ['roboto-font', 'material-icons'],
+  css: ['app.scss'],
+
+  extras: ['material-icons'],
 
   build: {
     vueRouterMode: 'history',
