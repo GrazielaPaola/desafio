@@ -1,19 +1,10 @@
 import { computed, ref } from 'vue'
 import { coletaService } from '@/services/coletaService'
+import { corDoMotorista } from '@/utils/cores'
 import { adicionarDias, dataParaApi, inicioDaSemana } from '@/utils/data'
 
 const DIAS_NA_SEMANA = 7
 const LIMITE_COLETAS_POR_SEMANA = 100
-const PALETA_MOTORISTAS = [
-  'primary',
-  'secondary',
-  'deep-orange',
-  'purple',
-  'teal',
-  'indigo',
-  'pink',
-  'brown',
-]
 
 export function useAgenda() {
   const inicioSemana = ref(inicioDaSemana(new Date()))
@@ -51,10 +42,6 @@ export function useAgenda() {
   function coletasDoDia(dia) {
     const chave = dataParaApi(dia)
     return coletas.value.filter((coleta) => coleta.data === chave)
-  }
-
-  function corDoMotorista(motoristaId) {
-    return PALETA_MOTORISTAS[motoristaId % PALETA_MOTORISTAS.length]
   }
 
   function irParaSemana(inicio) {
