@@ -4,37 +4,53 @@
     persistent
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <q-card class="formulario">
+    <q-card class="cartao-dialogo dialogo">
       <q-form @submit="enviar">
-        <q-card-section>
-          <div class="text-h6">{{ titulo }}</div>
-        </q-card-section>
+        <div class="dialogo__cabecalho">
+          <h2 class="dialogo__titulo">{{ titulo }}</h2>
+          <q-btn
+            flat
+            class="botao-acao"
+            aria-label="Fechar"
+            @click="emit('update:modelValue', false)"
+          >
+            <IconeSvg nome="fechar" :tamanho="14" :espessura="2" />
+          </q-btn>
+        </div>
 
-        <q-card-section class="q-pt-none">
-          <q-banner v-if="mensagemGeral" dense rounded class="bg-negative text-white q-mb-md">
-            {{ mensagemGeral }}
-          </q-banner>
+        <div class="dialogo__corpo">
+          <div v-if="mensagemGeral" class="aviso-erro">{{ mensagemGeral }}</div>
 
           <q-input
             v-model="formulario.nome"
             label="Nome"
+            outlined
             autofocus
             lazy-rules
             :rules="[obrigatorio, tamanhoMaximo(TAMANHO_MAXIMO_NOME)]"
             :error="Boolean(errosCampo.nome)"
             :error-message="errosCampo.nome"
           />
-        </q-card-section>
+        </div>
 
-        <q-card-actions align="right">
+        <div class="dialogo__rodape">
           <q-btn
             flat
+            class="botao-contorno"
             label="Cancelar"
+            no-caps
             :disable="salvando"
             @click="emit('update:modelValue', false)"
           />
-          <q-btn type="submit" color="primary" label="Salvar" :loading="salvando" />
-        </q-card-actions>
+          <q-btn
+            type="submit"
+            unelevated
+            class="botao-destaque"
+            label="Salvar"
+            no-caps
+            :loading="salvando"
+          />
+        </div>
       </q-form>
     </q-card>
   </q-dialog>
@@ -42,6 +58,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
+import IconeSvg from '@/components/IconeSvg.vue'
 import { obrigatorio, tamanhoMaximo } from '@/utils/validacoes'
 
 const props = defineProps({
@@ -73,8 +90,7 @@ function enviar() {
 </script>
 
 <style scoped>
-.formulario {
-  width: 100%;
+.dialogo {
   max-width: 480px;
 }
 </style>
