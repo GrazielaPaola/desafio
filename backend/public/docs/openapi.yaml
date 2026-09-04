@@ -270,6 +270,17 @@ components:
         id: { type: integer, example: 1 }
         nome: { type: string, example: Carlos Eduardo Silva }
         total_coletas: { type: integer, example: 2 }
+        placa_veiculo:
+          type: string
+          nullable: true
+          description: Placa vinculada ao motorista (regra 6), nula quando ele não possui coletas
+          example: ABC-1234
+        proxima_coleta:
+          type: string
+          format: date
+          nullable: true
+          description: Data da próxima coleta futura do motorista
+          example: '2026-09-10'
     MotoristaEntrada:
       type: object
       required: [nome]
@@ -322,11 +333,22 @@ components:
         coletas_hoje: { type: integer, example: 1 }
         coletas_proximos_dias: { type: integer, example: 6 }
         coletas_futuras: { type: integer, example: 10 }
+        coletas_semana: { type: integer, example: 8 }
         total_motoristas: { type: integer, example: 5 }
         motoristas_com_coletas: { type: integer, example: 5 }
         proximas_coletas:
           type: array
           items: { $ref: '#/components/schemas/Coleta' }
+        carga_motoristas:
+          type: array
+          description: Motoristas com mais coletas futuras, em ordem decrescente
+          items: { $ref: '#/components/schemas/CargaMotorista' }
+    CargaMotorista:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        nome: { type: string, example: Carlos Eduardo Silva }
+        coletas_futuras: { type: integer, example: 2 }
     Paginacao:
       type: object
       properties:

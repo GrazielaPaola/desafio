@@ -8,12 +8,16 @@ Desenvolvido como teste técnico para a vaga de Desenvolvedor(a) Full Stack Jún
 
 ## Funcionalidades
 
-- **Visão geral**: indicadores (coletas hoje, próximos 7 dias, coletas futuras, motoristas ativos) e próximas coletas.
+- **Visão geral**: indicadores (coletas hoje, próximos 7 dias, coletas futuras, motoristas ativos), próximas coletas e carga por motorista.
 - **Coletas**: CRUD completo com busca por fornecedor/cliente/CNPJ, filtro por motorista e período, ordenação por coluna, paginação e exportação para CSV.
 - **Agenda**: visão semanal das coletas, com cor por motorista e navegação entre semanas.
-- **Motoristas**: CRUD com busca, ordenação e bloqueio de exclusão quando há coletas vinculadas.
-- Layout responsivo: as tabelas viram cards no celular.
+- **Motoristas**: CRUD em cartões, com busca, placa vinculada, próxima coleta e bloqueio de exclusão quando há coletas.
+- Layout responsivo: menu lateral vira gaveta e as tabelas viram cards no celular.
 - Documentação da API navegável (Swagger UI) e coleção do Postman.
+
+## Interface
+
+A interface segue um design próprio, fora do Material padrão do Quasar: tipografia Manrope, fundo bege, menu lateral escuro e âmbar como cor de destaque. Os tokens ficam em [frontend/src/css/app.scss](frontend/src/css/app.scss) como variáveis CSS, e as cores de marca em [frontend/src/css/quasar.variables.scss](frontend/src/css/quasar.variables.scss). Os ícones são SVG traçados definidos em [frontend/src/utils/icones.js](frontend/src/utils/icones.js), sem dependência externa.
 
 ## Tecnologias
 
@@ -165,8 +169,16 @@ Payload de criação/atualização:
 Resposta (201/200):
 
 ```json
-{ "id": 1, "nome": "Carlos Eduardo Silva", "total_coletas": 0 }
+{
+  "id": 1,
+  "nome": "Carlos Eduardo Silva",
+  "total_coletas": 2,
+  "placa_veiculo": "ABC-1234",
+  "proxima_coleta": "2026-09-10"
+}
 ```
+
+`placa_veiculo` é a placa vinculada ao motorista pela regra 6 e `proxima_coleta` é a data da próxima coleta futura. Ambos vêm nulos quando o motorista ainda não tem coletas.
 
 ### Coletas
 
@@ -215,7 +227,7 @@ Resposta (201/200):
 
 | Método | Rota | Descrição |
 |---|---|---|
-| GET | `/resumo` | Indicadores da visão geral e as 5 próximas coletas |
+| GET | `/resumo` | Indicadores da visão geral, as 5 próximas coletas e a carga por motorista |
 
 ```json
 {
@@ -223,9 +235,11 @@ Resposta (201/200):
   "coletas_hoje": 1,
   "coletas_proximos_dias": 6,
   "coletas_futuras": 10,
+  "coletas_semana": 8,
   "total_motoristas": 5,
   "motoristas_com_coletas": 5,
-  "proximas_coletas": []
+  "proximas_coletas": [],
+  "carga_motoristas": [{ "id": 1, "nome": "Carlos Eduardo Silva", "coletas_futuras": 2 }]
 }
 ```
 
