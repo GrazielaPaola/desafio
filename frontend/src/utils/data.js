@@ -9,6 +9,20 @@ const UNIDADE_DIAS = 'days'
 const SEGUNDA_FEIRA = 1
 const DIAS_NA_SEMANA = 7
 const DIAS_DA_SEMANA_ABREVIADOS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+const MESES_ABREVIADOS = [
+  'JAN',
+  'FEV',
+  'MAR',
+  'ABR',
+  'MAI',
+  'JUN',
+  'JUL',
+  'AGO',
+  'SET',
+  'OUT',
+  'NOV',
+  'DEZ',
+]
 
 function diasAPartirDeHoje(valor, formato) {
   return date.getDateDiff(date.extractDate(valor, formato), new Date(), UNIDADE_DIAS)
@@ -26,6 +40,14 @@ export function telaParaApi(valor) {
 
 export function dataParaApi(valor) {
   return date.formatDate(valor, FORMATO_API)
+}
+
+export function diaDe(valorApi) {
+  return valorApi ? String(valorApi).slice(8, 10) : ''
+}
+
+export function mesDe(valorApi) {
+  return MESES_ABREVIADOS[Number(String(valorApi).slice(5, 7)) - 1] ?? ''
 }
 
 export function ehDataValidaNaTela(valor) {
