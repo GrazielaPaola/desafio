@@ -1,12 +1,6 @@
 <template>
   <header class="cabecalho">
-    <q-btn
-      v-if="$q.screen.lt.md"
-      flat
-      class="botao-icone"
-      aria-label="Abrir menu"
-      @click="alternar"
-    >
+    <q-btn v-if="!aberto" flat class="botao-icone" aria-label="Abrir menu" @click="alternar">
       <IconeSvg nome="menu" />
     </q-btn>
 
@@ -43,7 +37,7 @@ defineProps({
 
 const USUARIO = { nome: 'Luiz Carvalho', papel: 'Operações' }
 
-const { alternar } = useMenuLateral()
+const { aberto, alternar } = useMenuLateral()
 </script>
 
 <style scoped>

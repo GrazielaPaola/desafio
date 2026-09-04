@@ -1,12 +1,12 @@
 <template>
   <div class="menu">
-    <div class="menu__marca">
+    <router-link :to="{ name: 'inicio' }" class="menu__marca" @click="fecharQuandoSobrepoe">
       <span class="menu__logo">O</span>
       <span class="menu__identidade">
         <span class="menu__produto">OlfLog</span>
         <span class="menu__segmento">Coletas</span>
       </span>
-    </div>
+    </router-link>
 
     <nav class="menu__navegacao">
       <span class="menu__titulo">Navegação</span>
@@ -16,7 +16,7 @@
         :to="{ name: item.rota }"
         class="item-menu"
         exact-active-class="item-menu--ativo"
-        @click="fechar"
+        @click="fecharQuandoSobrepoe"
       >
         <span class="menu__icone"><IconeSvg :nome="item.icone" :tamanho="18" /></span>
         <span>{{ item.titulo }}</span>
@@ -45,7 +45,7 @@ const ITENS = [
   { titulo: 'Motoristas', icone: 'cracha', rota: 'motoristas' },
 ]
 
-const { fechar } = useMenuLateral()
+const { fecharQuandoSobrepoe } = useMenuLateral()
 const { resumo } = storeToRefs(useResumoStore())
 
 const coletasDaSemana = computed(() => resumo.value?.coletas_semana ?? 0)
@@ -65,6 +65,12 @@ const coletasDaSemana = computed(() => resumo.value?.coletas_semana ?? 0)
   align-items: center;
   gap: 11px;
   padding: 6px 10px;
+  border-radius: var(--raio-botao);
+  text-decoration: none;
+}
+
+.menu__marca:hover {
+  background: var(--escuro-suave);
 }
 
 .menu__logo {

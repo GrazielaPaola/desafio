@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh LpR lFr" class="menu-lateral">
-    <q-drawer v-model="aberto" show-if-above :width="LARGURA_MENU" :breakpoint="1023">
+    <q-drawer v-model="aberto" show-if-above :width="LARGURA_MENU" :breakpoint="BREAKPOINT_MENU">
       <MenuLateral />
     </q-drawer>
 
@@ -13,11 +13,9 @@
 <script setup>
 import { onMounted } from 'vue'
 import MenuLateral from '@/components/MenuLateral.vue'
-import { useMenuLateral } from '@/composables/useMenuLateral'
+import { BREAKPOINT_MENU, LARGURA_MENU, useMenuLateral } from '@/composables/useMenuLateral'
 import { useErrosApi } from '@/composables/useErrosApi'
 import { useResumoStore } from '@/stores/resumo'
-
-const LARGURA_MENU = 244
 
 const { aberto } = useMenuLateral()
 const resumoStore = useResumoStore()
