@@ -72,7 +72,7 @@ class ColetaService
         $existeColetaNaData = Coleta::query()
             ->where('fornecedor_cnpj', Cnpj::normalizar($dados['fornecedor_cnpj']))
             ->whereDate('data', $dados['data'])
-            ->when($coletaAtual, fn ($query) => $query->whereKeyNot($coletaAtual->getKey()))
+            ->exceto($coletaAtual)
             ->exists();
 
         if ($existeColetaNaData) {
@@ -85,7 +85,7 @@ class ColetaService
         $coletaComOutraPlaca = Coleta::query()
             ->where('motorista_id', $dados['motorista_id'])
             ->where('placa_veiculo', '!=', Placa::normalizar($dados['placa_veiculo']))
-            ->when($coletaAtual, fn ($query) => $query->whereKeyNot($coletaAtual->getKey()))
+            ->exceto($coletaAtual)
             ->first();
 
         if ($coletaComOutraPlaca === null) {

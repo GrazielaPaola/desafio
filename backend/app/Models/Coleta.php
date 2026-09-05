@@ -70,6 +70,11 @@ class Coleta extends Model
         return $query->whereDate('data', '<=', $data);
     }
 
+    public function scopeExceto(Builder $query, ?Coleta $coleta): Builder
+    {
+        return $query->when($coleta, fn (Builder $consulta) => $consulta->whereKeyNot($coleta->getKey()));
+    }
+
     public function scopeOrdenadoPor(Builder $query, string $coluna, string $direcao): Builder
     {
         if ($coluna === self::ORDENACAO_POR_MOTORISTA) {
