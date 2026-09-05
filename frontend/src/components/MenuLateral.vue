@@ -1,7 +1,7 @@
 <template>
   <div class="menu">
     <router-link :to="{ name: 'inicio' }" class="menu__marca" @click="fecharQuandoSobrepoe">
-      <span class="menu__logo">O</span>
+      <LogoOlfLog :largura="46" />
       <span class="menu__identidade">
         <span class="menu__produto">OlfLog</span>
         <span class="menu__segmento">Coletas</span>
@@ -42,6 +42,7 @@
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import IconeSvg from '@/components/IconeSvg.vue'
+import LogoOlfLog from '@/components/LogoOlfLog.vue'
 import TelaSobre from '@/components/TelaSobre.vue'
 import { useMenuLateral } from '@/composables/useMenuLateral'
 import { useResumoStore } from '@/stores/resumo'
@@ -80,19 +81,6 @@ const sobreAberto = ref(false)
 
 .menu__marca:hover {
   background: var(--escuro-suave);
-}
-
-.menu__logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 11px;
-  background: var(--ambar);
-  color: var(--escuro);
-  font-size: 15px;
-  font-weight: 800;
 }
 
 .menu__identidade {

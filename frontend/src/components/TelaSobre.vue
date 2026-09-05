@@ -8,7 +8,7 @@
   >
     <div class="sobre" @click="emit('update:modelValue', false)">
       <div class="sobre__marca">
-        <span class="sobre__logo">O</span>
+        <LogoOlfLog :largura="150" />
         <span class="sobre__produto">OlfLog</span>
         <span class="sobre__segmento">Agendamento de Coletas</span>
       </div>
@@ -56,6 +56,8 @@
 </template>
 
 <script setup>
+import LogoOlfLog from '@/components/LogoOlfLog.vue'
+
 defineProps({
   modelValue: { type: Boolean, required: true },
 })
@@ -88,19 +90,6 @@ const STACK = ['Vue 3 + Quasar', 'Laravel 13', 'MySQL 8', 'PHPUnit + Vitest']
   align-items: center;
   gap: 10px;
   animation: surgir 700ms ease-out both;
-}
-
-.sobre__logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 84px;
-  height: 84px;
-  border-radius: 26px;
-  background: var(--ambar);
-  color: var(--escuro);
-  font-size: 40px;
-  font-weight: 800;
 }
 
 .sobre__produto {
