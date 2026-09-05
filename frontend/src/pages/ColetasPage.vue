@@ -14,7 +14,7 @@
           <IconeSvg nome="download" :tamanho="15" :espessura="2" class="q-mr-sm" />
           Exportar CSV
         </q-btn>
-        <q-btn unelevated class="botao-destaque" no-caps @click="nova">
+        <q-btn unelevated class="botao-destaque" no-caps @click="abrirFormulario()">
           <IconeSvg nome="mais" :tamanho="15" :espessura="2.4" class="q-mr-sm" />
           Nova coleta
         </q-btn>
@@ -26,18 +26,18 @@
       :carregando="carregando"
       :paginacao="paginacao"
       @solicitar="carregarPagina"
-      @editar="editar"
-      @excluir="excluir"
+      @editar="abrirFormulario"
+      @excluir="excluirItem"
     />
 
     <ColetaForm
       v-model="formularioAberto"
-      :coleta="coletaSelecionada"
+      :coleta="selecionado"
       :motoristas="opcoesMotoristas"
       :erros-campo="errosCampo"
       :mensagem-geral="mensagemGeral"
       :salvando="salvando"
-      @salvar="salvar"
+      @salvar="salvarItem"
     />
   </q-page>
 </template>
@@ -51,12 +51,10 @@ import ColetasTable from '@/components/ColetasTable.vue'
 import ColetaForm from '@/components/ColetaForm.vue'
 import FiltrosColetas from '@/components/FiltrosColetas.vue'
 import IconeSvg from '@/components/IconeSvg.vue'
+import { useCadastro } from '@/composables/useCadastro'
 import { useColetas } from '@/composables/useColetas'
-import { useMotoristasStore } from '@/stores/motoristas'
-import { useResumoStore } from '@/stores/resumo'
-import { useErrosApi } from '@/composables/useErrosApi'
 import { useNotificacao } from '@/composables/useNotificacao'
-import { useConfirmacao } from '@/composables/useConfirmacao'
+import { useMotoristasStore } from '@/stores/motoristas'
 import { apiParaTela } from '@/utils/data'
 
 const NOME_ARQUIVO_CSV = 'coletas.csv'
@@ -69,20 +67,36 @@ const {
   filtros,
   carregar,
   aplicarFiltros,
-  salvar: salvarColeta,
-  excluir: excluirColeta,
+  salvar,
+  excluir,
   exportar,
 } = useColetas()
 const motoristasStore = useMotoristasStore()
 const { opcoes: opcoesMotoristas } = storeToRefs(motoristasStore)
-const resumoStore = useResumoStore()
-const { errosCampo, mensagemGeral, limpar, tratar } = useErrosApi()
-const { sucesso, erro: notificarErro } = useNotificacao()
-const { confirmarExclusao } = useConfirmacao()
+const { erro: notificarErro } = useNotificacao()
 
-const formularioAberto = ref(false)
-const coletaSelecionada = ref(null)
-const salvando = ref(false)
+const {
+  formularioAberto,
+  selecionado,
+  salvando,
+  errosCampo,
+  mensagemGeral,
+  tratar,
+  abrirFormulario,
+  salvarItem,
+  excluirItem,
+} = useCadastro({
+  salvar,
+  excluir,
+  mensagens: {
+    criado: 'Coleta agendada',
+    atualizado: 'Coleta atualizada',
+    excluido: 'Coleta excluída',
+    confirmarExclusao: (coleta) =>
+      `Excluir a coleta de ${coleta.fornecedor_nome} em ${apiParaTela(coleta.data)}?`,
+  },
+})
+
 const exportando = ref(false)
 
 const subtitulo = computed(() => {
@@ -101,51 +115,6 @@ function carregarPagina(pagina) {
 
 function filtrar(novosFiltros) {
   aplicarFiltros(novosFiltros).catch(tratar)
-}
-
-function nova() {
-  abrirFormulario(null)
-}
-
-function editar(coleta) {
-  abrirFormulario(coleta)
-}
-
-function abrirFormulario(coleta) {
-  coletaSelecionada.value = coleta
-  limpar()
-  formularioAberto.value = true
-}
-
-async function salvar(dados) {
-  salvando.value = true
-  limpar()
-
-  try {
-    await salvarColeta(dados, coletaSelecionada.value?.id)
-    sucesso(coletaSelecionada.value ? 'Coleta atualizada' : 'Coleta agendada')
-    formularioAberto.value = false
-    resumoStore.carregar().catch(tratar)
-  } catch (erro) {
-    tratar(erro)
-  } finally {
-    salvando.value = false
-  }
-}
-
-async function excluir(coleta) {
-  const confirmado = await confirmarExclusao(
-    `Excluir a coleta de ${coleta.fornecedor_nome} em ${apiParaTela(coleta.data)}?`,
-  )
-  if (!confirmado) return
-
-  try {
-    await excluirColeta(coleta.id)
-    sucesso('Coleta excluída')
-    resumoStore.carregar().catch(tratar)
-  } catch (erro) {
-    tratar(erro)
-  }
 }
 
 async function exportarCsv() {

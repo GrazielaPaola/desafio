@@ -21,23 +21,16 @@
 
     <template #body-cell-fornecedor_nome="props">
       <q-td :props="props">
-        <div class="celula-empresa">
-          <span class="celula-empresa__nome">{{ props.row.fornecedor_nome }}</span>
-          <span class="celula-empresa__documento numero-tabular">
-            {{ props.row.fornecedor_cnpj }}
-          </span>
-        </div>
+        <EmpresaDocumento
+          :nome="props.row.fornecedor_nome"
+          :documento="props.row.fornecedor_cnpj"
+        />
       </q-td>
     </template>
 
     <template #body-cell-cliente_nome="props">
       <q-td :props="props">
-        <div class="celula-empresa">
-          <span class="celula-empresa__nome">{{ props.row.cliente_nome }}</span>
-          <span class="celula-empresa__documento numero-tabular">
-            {{ props.row.cliente_cnpj }}
-          </span>
-        </div>
+        <EmpresaDocumento :nome="props.row.cliente_nome" :documento="props.row.cliente_cnpj" />
       </q-td>
     </template>
 
@@ -75,21 +68,16 @@
             <span class="chip-placa">{{ props.row.placa_veiculo }}</span>
           </div>
 
-          <div class="cartao-coleta__bloco">
-            <span class="rotulo-miudo">Fornecedor</span>
-            <span class="cartao-coleta__nome">{{ props.row.fornecedor_nome }}</span>
-            <span class="cartao-coleta__documento numero-tabular">
-              {{ props.row.fornecedor_cnpj }}
-            </span>
-          </div>
-
-          <div class="cartao-coleta__bloco">
-            <span class="rotulo-miudo">Cliente</span>
-            <span class="cartao-coleta__nome">{{ props.row.cliente_nome }}</span>
-            <span class="cartao-coleta__documento numero-tabular">
-              {{ props.row.cliente_cnpj }}
-            </span>
-          </div>
+          <EmpresaDocumento
+            rotulo="Fornecedor"
+            :nome="props.row.fornecedor_nome"
+            :documento="props.row.fornecedor_cnpj"
+          />
+          <EmpresaDocumento
+            rotulo="Cliente"
+            :nome="props.row.cliente_nome"
+            :documento="props.row.cliente_cnpj"
+          />
 
           <div class="cartao-coleta__rodape">
             <div class="celula-motorista">
@@ -116,6 +104,7 @@
 
 <script setup>
 import AcoesLinha from '@/components/AcoesLinha.vue'
+import EmpresaDocumento from '@/components/EmpresaDocumento.vue'
 import IconeSvg from '@/components/IconeSvg.vue'
 import { OPCOES_POR_PAGINA, usePaginacaoTabela } from '@/composables/usePaginacaoTabela'
 import { corDoMotorista } from '@/utils/cores'
@@ -159,24 +148,6 @@ const colunas = [
   font-weight: 700;
 }
 
-.celula-empresa {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
-.celula-empresa__nome {
-  font-size: 13.5px;
-  font-weight: 600;
-}
-
-.celula-empresa__documento {
-  font-size: 11.5px;
-  font-weight: 500;
-  color: var(--tinta-apagada);
-}
-
 .celula-motorista {
   display: flex;
   align-items: center;
@@ -216,23 +187,6 @@ const colunas = [
 .cartao-coleta__data {
   font-size: 16px;
   font-weight: 800;
-}
-
-.cartao-coleta__bloco {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.cartao-coleta__nome {
-  font-size: 13.5px;
-  font-weight: 600;
-}
-
-.cartao-coleta__documento {
-  font-size: 11.5px;
-  font-weight: 500;
-  color: var(--tinta-apagada);
 }
 
 .cartao-coleta__rodape {

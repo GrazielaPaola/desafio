@@ -9,7 +9,7 @@
         rotulo="Buscar por nome"
         @update:model-value="filtrar"
       />
-      <q-btn unelevated class="botao-destaque barra__acao" no-caps @click="novo">
+      <q-btn unelevated class="botao-destaque barra__acao" no-caps @click="abrirFormulario()">
         <IconeSvg nome="mais" :tamanho="15" :espessura="2.4" class="q-mr-sm" />
         Novo motorista
       </q-btn>
@@ -20,45 +20,55 @@
       :carregando="carregando"
       :paginacao="paginacao"
       @solicitar="carregarPagina"
-      @editar="editar"
-      @excluir="excluir"
+      @editar="abrirFormulario"
+      @excluir="excluirItem"
     />
 
     <MotoristaForm
       v-model="formularioAberto"
-      :motorista="motoristaSelecionado"
+      :motorista="selecionado"
       :erros-campo="errosCampo"
       :mensagem-geral="mensagemGeral"
       :salvando="salvando"
-      @salvar="salvar"
+      @salvar="salvarItem"
     />
   </q-page>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import CabecalhoPagina from '@/components/CabecalhoPagina.vue'
 import CampoBusca from '@/components/CampoBusca.vue'
 import IconeSvg from '@/components/IconeSvg.vue'
 import MotoristasGrid from '@/components/MotoristasGrid.vue'
 import MotoristaForm from '@/components/MotoristaForm.vue'
+import { useCadastro } from '@/composables/useCadastro'
 import { useMotoristasStore } from '@/stores/motoristas'
-import { useResumoStore } from '@/stores/resumo'
-import { useErrosApi } from '@/composables/useErrosApi'
-import { useNotificacao } from '@/composables/useNotificacao'
-import { useConfirmacao } from '@/composables/useConfirmacao'
 
 const store = useMotoristasStore()
 const { motoristas, carregando, paginacao, filtros } = storeToRefs(store)
-const resumoStore = useResumoStore()
-const { errosCampo, mensagemGeral, limpar, tratar } = useErrosApi()
-const { sucesso } = useNotificacao()
-const { confirmarExclusao } = useConfirmacao()
 
-const formularioAberto = ref(false)
-const motoristaSelecionado = ref(null)
-const salvando = ref(false)
+const {
+  formularioAberto,
+  selecionado,
+  salvando,
+  errosCampo,
+  mensagemGeral,
+  tratar,
+  abrirFormulario,
+  salvarItem,
+  excluirItem,
+} = useCadastro({
+  salvar: store.salvar,
+  excluir: store.excluir,
+  mensagens: {
+    criado: 'Motorista cadastrado',
+    atualizado: 'Motorista atualizado',
+    excluido: 'Motorista excluído',
+    confirmarExclusao: (motorista) => `Excluir o motorista ${motorista.nome}?`,
+  },
+})
 
 const subtitulo = computed(() => {
   const total = paginacao.value.rowsNumber
@@ -73,49 +83,6 @@ function carregarPagina(pagina) {
 
 function filtrar(busca) {
   store.aplicarFiltros({ busca }).catch(tratar)
-}
-
-function novo() {
-  abrirFormulario(null)
-}
-
-function editar(motorista) {
-  abrirFormulario(motorista)
-}
-
-function abrirFormulario(motorista) {
-  motoristaSelecionado.value = motorista
-  limpar()
-  formularioAberto.value = true
-}
-
-async function salvar(dados) {
-  salvando.value = true
-  limpar()
-
-  try {
-    await store.salvar(dados, motoristaSelecionado.value?.id)
-    sucesso(motoristaSelecionado.value ? 'Motorista atualizado' : 'Motorista cadastrado')
-    formularioAberto.value = false
-    resumoStore.carregar().catch(tratar)
-  } catch (erro) {
-    tratar(erro)
-  } finally {
-    salvando.value = false
-  }
-}
-
-async function excluir(motorista) {
-  const confirmado = await confirmarExclusao(`Excluir o motorista ${motorista.nome}?`)
-  if (!confirmado) return
-
-  try {
-    await store.excluir(motorista.id)
-    sucesso('Motorista excluído')
-    resumoStore.carregar().catch(tratar)
-  } catch (erro) {
-    tratar(erro)
-  }
 }
 </script>
 

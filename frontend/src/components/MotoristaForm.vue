@@ -1,64 +1,28 @@
 <template>
-  <q-dialog
+  <DialogoFormulario
     :model-value="modelValue"
-    persistent
+    :titulo="titulo"
+    :mensagem-geral="mensagemGeral"
+    :salvando="salvando"
     @update:model-value="emit('update:modelValue', $event)"
+    @enviar="enviar"
   >
-    <q-card class="cartao-dialogo dialogo">
-      <q-form @submit="enviar">
-        <div class="dialogo__cabecalho">
-          <h2 class="dialogo__titulo">{{ titulo }}</h2>
-          <q-btn
-            flat
-            class="botao-acao"
-            aria-label="Fechar"
-            @click="emit('update:modelValue', false)"
-          >
-            <IconeSvg nome="fechar" :tamanho="14" :espessura="2" />
-          </q-btn>
-        </div>
-
-        <div class="dialogo__corpo">
-          <div v-if="mensagemGeral" class="aviso-erro">{{ mensagemGeral }}</div>
-
-          <q-input
-            v-model="formulario.nome"
-            label="Nome"
-            outlined
-            autofocus
-            lazy-rules
-            :rules="[obrigatorio, tamanhoMaximo(TAMANHO_MAXIMO_NOME)]"
-            :error="Boolean(errosCampo.nome)"
-            :error-message="errosCampo.nome"
-          />
-        </div>
-
-        <div class="dialogo__rodape">
-          <q-btn
-            flat
-            class="botao-contorno"
-            label="Cancelar"
-            no-caps
-            :disable="salvando"
-            @click="emit('update:modelValue', false)"
-          />
-          <q-btn
-            type="submit"
-            unelevated
-            class="botao-destaque"
-            label="Salvar"
-            no-caps
-            :loading="salvando"
-          />
-        </div>
-      </q-form>
-    </q-card>
-  </q-dialog>
+    <q-input
+      v-model="formulario.nome"
+      label="Nome"
+      outlined
+      autofocus
+      lazy-rules
+      :rules="[obrigatorio, tamanhoMaximo(TAMANHO_MAXIMO_NOME)]"
+      :error="Boolean(errosCampo.nome)"
+      :error-message="errosCampo.nome"
+    />
+  </DialogoFormulario>
 </template>
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import IconeSvg from '@/components/IconeSvg.vue'
+import DialogoFormulario from '@/components/DialogoFormulario.vue'
 import { obrigatorio, tamanhoMaximo } from '@/utils/validacoes'
 
 const props = defineProps({
@@ -88,9 +52,3 @@ function enviar() {
   emit('salvar', { ...formulario.value })
 }
 </script>
-
-<style scoped>
-.dialogo {
-  max-width: 480px;
-}
-</style>
