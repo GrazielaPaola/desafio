@@ -35,7 +35,7 @@ defineProps({
   subtitulo: { type: String, default: '' },
 })
 
-const USUARIO = { nome: 'Luiz Carvalho', papel: 'Operações' }
+const USUARIO = { nome: 'Graziela Paola', papel: 'Operações' }
 
 const { aberto, alternar } = useMenuLateral()
 </script>
