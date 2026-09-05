@@ -1,6 +1,6 @@
 # Agendamento de Coletas
 
-![CI](https://github.com/USUARIO/REPOSITORIO/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/GrazielaPaola/desafio/actions/workflows/ci.yml/badge.svg)
 
 Sistema para cadastro de motoristas e agendamento de coletas entre fornecedores e clientes, com validação das regras de negócio no backend e feedback imediato na interface.
 
