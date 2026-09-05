@@ -18,4 +18,5 @@ export const TRACOS_ICONES = {
   excluir: ['M4 7h16', 'M7 7V4h10v3', 'M6 7l1 13h10l1-13'],
   fechar: ['M6 6l12 12', 'M18 6 6 18'],
   menu: ['M4 7h16', 'M4 12h16', 'M4 17h16'],
+  info: ['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18', 'M12 11v5', 'M12 8h.01'],
 }

@@ -28,13 +28,21 @@
       <span class="menu__resumo-valor numero-tabular">{{ coletasDaSemana }}</span>
       <span class="menu__resumo-nota">coletas programadas</span>
     </div>
+
+    <button type="button" class="menu__sobre" @click="sobreAberto = true">
+      <IconeSvg nome="info" :tamanho="14" />
+      <span>Sobre o projeto</span>
+    </button>
+
+    <TelaSobre v-model="sobreAberto" />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import IconeSvg from '@/components/IconeSvg.vue'
+import TelaSobre from '@/components/TelaSobre.vue'
 import { useMenuLateral } from '@/composables/useMenuLateral'
 import { useResumoStore } from '@/stores/resumo'
 
@@ -49,6 +57,7 @@ const { fecharQuandoSobrepoe } = useMenuLateral()
 const { resumo } = storeToRefs(useResumoStore())
 
 const coletasDaSemana = computed(() => resumo.value?.coletas_semana ?? 0)
+const sobreAberto = ref(false)
 </script>
 
 <style scoped>
@@ -160,5 +169,26 @@ const coletasDaSemana = computed(() => resumo.value?.coletas_semana ?? 0)
   color: var(--claro-fraco);
   font-size: 12.5px;
   font-weight: 500;
+}
+
+.menu__sobre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: -22px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--raio-acao);
+  background: transparent;
+  color: var(--claro-tenue);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 140ms ease;
+}
+
+.menu__sobre:hover {
+  color: var(--claro-nav);
 }
 </style>
