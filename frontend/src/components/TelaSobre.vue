@@ -8,8 +8,7 @@
   >
     <div class="sobre" @click="emit('update:modelValue', false)">
       <div class="sobre__marca">
-        <LogoOlfLog :largura="150" />
-        <span class="sobre__produto">OlfLog</span>
+        <LogoOlfLog :largura="380" />
         <span class="sobre__segmento">Agendamento de Coletas</span>
       </div>
 
@@ -89,17 +88,12 @@ const STACK = ['Vue 3 + Quasar', 'Laravel 13', 'MySQL 8', 'PHPUnit + Vitest']
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  max-width: 100%;
   animation: surgir 700ms ease-out both;
 }
 
-.sobre__produto {
-  margin-top: 8px;
-  font-size: 34px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
 .sobre__segmento {
+  margin-top: 6px;
   color: var(--claro-rotulo);
   font-size: 13px;
   font-weight: 600;

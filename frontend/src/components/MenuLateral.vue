@@ -1,11 +1,8 @@
 <template>
   <div class="menu">
     <router-link :to="{ name: 'inicio' }" class="menu__marca" @click="fecharQuandoSobrepoe">
-      <LogoOlfLog :largura="46" />
-      <span class="menu__identidade">
-        <span class="menu__produto">OlfLog</span>
-        <span class="menu__segmento">Coletas</span>
-      </span>
+      <LogoOlfLog :largura="176" />
+      <span class="menu__segmento">Agendamento de coletas</span>
     </router-link>
 
     <nav class="menu__navegacao">
@@ -72,28 +69,16 @@ const sobreAberto = ref(false)
 
 .menu__marca {
   display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 6px 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
   border-radius: var(--raio-botao);
   text-decoration: none;
 }
 
 .menu__marca:hover {
   background: var(--escuro-suave);
-}
-
-.menu__identidade {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.menu__produto {
-  color: var(--claro);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
 }
 
 .menu__segmento {
